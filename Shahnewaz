@@ -1,0 +1,51 @@
+---
+title: "IOM"
+author: "Shahnewaz"
+date: "2023-12-12"
+output: html_document
+---
+
+```{r}
+library(leaflet)
+library(jsonlite)
+```
+
+```{r}
+Mig <- sf::st_read("D:/R Studio/geospatial-datascience-r/geospatial-datascience-r/data/BGD_ADMIN_1.geojson")
+Int_MigPal <- colorQuantile(colorRamp(c("#1d91c0","#004BED", "#0043D3", "#003BBA","#0033A0", "#002B87", "#00236D","#001B54")), Mig$Int_Mig, n=8)
+```
+
+```{r}
+Int_Mig <- leaflet() %>% 
+  addProviderTiles(providers$Esri.WorldImagery, group = "Basemap - aerial") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Basemap - greyscale") %>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group = "Basemap - dark") %>% 
+  addPolygons(data = Mig,
+              stroke = TRUE,
+              weight = 1.3,
+              opacity = 1,
+              color = ~Int_MigPal(Int_Mig),
+              fillOpacity = 0.9,
+              popup = ~popup,
+              highlightOptions = highlightOptions(color = "#FF671F", weight = 1.5,
+                                                  bringToFront = TRUE, fillOpacity = 0.5),) %>% 
+addLegend("bottomright",opacity = 1,
+          colors =c("#1d91c0","#004BED", "#0043D3", "#003BBA", "#0033A0", "#002B87", "#00236D", "#001B54"),
+          title = "International Migration",
+          labels= c("Rangpur","Dhaka","Barishal","Mymensingh", "Chattogram","Rajshahi", "Khulna", "Sylhet")
+          )%>%
+  addEasyButton(easyButton(
+    icon="fa-globe", title="Zoom to Level 1",
+    onClick=JS("function(btn, map){ map.setZoom(1); }"))) %>%
+  addEasyButton(easyButton(
+    icon="fa-crosshairs", title="Locate Me",
+    onClick=JS("function(btn, map){ map.locate({setView: true}); }")))%>%
+  addLayersControl(
+    baseGroups = c("Basemap - dark","Basemap - greyscale","Basemap - aerial"),
+    options = layersControlOptions(collapsed = TRUE))
+
+#set pop-up content
+Mig$popup <- paste("<strong>",Mig$ADM1_EN, "</br>",
+                     "</strong>","International Migration:", prettyNum(Mig$Int_Mig, big.mark = ","))
+Int_Mig
+```
