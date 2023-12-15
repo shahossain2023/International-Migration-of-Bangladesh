@@ -16,11 +16,11 @@ Int_MigPal <- colorQuantile(colorRamp(c("#1d91c0","#004BED", "#0043D3", "#003BBA
 ```
 
 ```{r}
-Int_Mig <- leaflet() %>% 
-  addProviderTiles(providers$Esri.WorldImagery, group = "Basemap - aerial") %>%
-  addProviderTiles(providers$CartoDB.Positron, group = "Basemap - greyscale") %>%
-  addProviderTiles(providers$CartoDB.DarkMatter, group = "Basemap - dark") %>% 
-  addPolygons(data = Mig,
+#set pop-up content
+Mig$popup <- paste("<strong>",Mig$ADM1_EN, "</br>",
+                     "</strong>","International Migration:", prettyNum(Mig$Int_Mig, big.mark = ","))
+Int_Mig <- leaflet()%>% 
+addPolygons(data = Mig,
               stroke = TRUE,
               weight = 1.3,
               opacity = 1,
@@ -33,7 +33,11 @@ addLegend("bottomright",opacity = 1,
           colors =c("#1d91c0","#004BED", "#0043D3", "#003BBA", "#0033A0", "#002B87", "#00236D", "#001B54"),
           title = "International Migration",
           labels= c("Rangpur","Dhaka","Barishal","Mymensingh", "Chattogram","Rajshahi", "Khulna", "Sylhet")
-          )%>%
+          ) %>% 
+  addProviderTiles(providers$Esri.WorldImagery, group = "Basemap - aerial") %>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group = "Basemap - dark") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Basemap - greyscale") %>%
+  
   addEasyButton(easyButton(
     icon="fa-globe", title="Zoom to Level 1",
     onClick=JS("function(btn, map){ map.setZoom(1); }"))) %>%
@@ -41,11 +45,7 @@ addLegend("bottomright",opacity = 1,
     icon="fa-crosshairs", title="Locate Me",
     onClick=JS("function(btn, map){ map.locate({setView: true}); }")))%>%
   addLayersControl(
-    baseGroups = c("Basemap - dark","Basemap - greyscale","Basemap - aerial"),
+    baseGroups = c("Basemap - greyscale","Basemap - dark","Basemap - aerial"),
     options = layersControlOptions(collapsed = TRUE))
-
-#set pop-up content
-Mig$popup <- paste("<strong>",Mig$ADM1_EN, "</br>",
-                     "</strong>","International Migration:", prettyNum(Mig$Int_Mig, big.mark = ","))
 Int_Mig
 ```
